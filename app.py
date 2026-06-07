@@ -18,16 +18,16 @@ st.set_page_config(
 # Usamos st.cache_data para que no recargue el archivo con cada clic del usuario
 @st.cache_data
 def cargar_datos():
-    # Cargamos el dataset
+    # 1. Cargamos el dataset de forma limpia
     df = pd.read_csv("Base_proyecto_final.csv")
     
-    # Limpiamos los nombres de las columnas (quitamos espacios en blanco como en ' Sueldo Actual ')
+    # 2. EL PASO CRUCIAL: Eliminamos espacios ocultos en los nombres de TODAS las columnas
     df.columns = df.columns.str.strip()
     
-    # Limpiamos los espacios en blanco dentro de las celdas de texto del puesto
+    # 3. Ahora que las columnas están limpias, ya podemos usar 'Desc Puesto' sin errores
     df['Desc Puesto'] = df['Desc Puesto'].astype(str).str.strip()
     
-    # Nos aseguramos de que el Sueldo Actual sea numérico, convirtiendo errores en NaN
+    # 4. Limpiamos también la columna de sueldos (quitando espacios y convirtiendo a número)
     df['Sueldo Actual'] = pd.to_numeric(df['Sueldo Actual'], errors='coerce')
     
     return df
