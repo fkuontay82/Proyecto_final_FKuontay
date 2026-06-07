@@ -48,7 +48,7 @@ try:
     df = cargar_datos()
       
     # 4. CUERPO PRINCIPAL
-    st.title("🚀 PROYECTO FINAL: Analítica de Datos")
+    st.title("PROYECTO FINAL: Analítica de Datos")
     st.markdown("---")
     
     # Lógica de la Barra Lateral para filtrar puestos
