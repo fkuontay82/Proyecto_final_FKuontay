@@ -33,7 +33,7 @@ def cargar_datos():
     return df
 
 # Ejecutamos la función para tener nuestro dataframe listo
-df = cargar_datos(Base_proyecto_final)
+df = cargar_datos("Base_proyecto_final")
 
 
 # --- 2. CONFIGURACIÓN DE LA BARRA LATERAL (SIDEBAR) ---
