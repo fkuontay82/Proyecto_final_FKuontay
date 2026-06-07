@@ -40,25 +40,7 @@ def cargar_datos():
 # Ejecución de la carga
 try:
     df = cargar_datos()
-
-@st.cache_data
-def cargar_datos_locales(Base_proyecto_final):
-    try:
-        # Añadimos el parámetro encoding='latin1' para soportar eñes y tildes
-        df = pd.read_csv(nombre_archivo, encoding='latin1')
-        
-        # Limpieza de espacios en los nombres de las columnas
-        df.columns = df.columns.str.strip()
-        return df
-    except Exception as e:
-        # Si da error con latin1, intentamos con ISO-8859-1 por si acaso
-        try:
-            df = pd.read_csv(nombre_archivo, encoding='iso-8859-1')
-            df.columns = df.columns.str.strip()
-            return df
-        except:
-            return None
-   
+      
     # 4. CUERPO PRINCIPAL
     st.title("🚀 PROYECTO FINAL: Analítica de Datos")
     st.markdown("---")
