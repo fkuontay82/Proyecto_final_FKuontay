@@ -7,7 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 
-# 1. CONFIGURACIÓN DE PÁGINA (Debe ser estrictamente la PRIMERA instrucción de Streamlit)
+# 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(
     page_title="Dashboard de Analítica de Talento Humano",
     page_icon="📊",
@@ -53,7 +53,7 @@ try:
     df = cargar_datos()
       
     # 4. CUERPO PRINCIPAL
-    st.title("🚀 PROYECTO FINAL: Analítica de Datos")
+    st.title("PROYECTO FINAL: Analítica de Datos")
     st.markdown("---")
     
     # Lógica de la Barra Lateral para filtrar puestos
@@ -110,8 +110,8 @@ try:
             values='Cantidad',
             names='Motivo de Baja',
             title="Proporción de Bajas según el Motivo",
-            hole=0.4,  # Convierte el gráfico de pastel en uno de dona, que es más moderno y legible
-            color_discrete_sequence=px.colors.sequential.Reds_r # Colores elegantes basados en tonos rojos/cálidos
+            hole=0.3,  # Convierte el gráfico de pastel en uno de dona, que es más moderno y legible
+            color_discrete_sequence=px.colors.sequential.Blues_r # Colores elegantes basados en tonos azul/cálidos
         )
         
         # Ajustes visuales para mostrar texto y porcentajes dentro del gráfico
