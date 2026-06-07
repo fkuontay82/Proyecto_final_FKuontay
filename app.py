@@ -17,7 +17,7 @@ st.set_page_config(
 # --- 1. CARGA Y LIMPIEZA INICIAL DE DATOS ---
 # Usamos st.cache_data para que no recargue el archivo con cada clic del usuario
 @st.cache_data
-def cargar_datos():
+def cargar_datos("Base_proyecto_final"):
     # Cargamos el dataset
     df = pd.read_csv("Base_proyecto_final.csv")
     
