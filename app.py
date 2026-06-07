@@ -6,23 +6,29 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
-st.title("PROYECTO FINAL")
 
+# 1. CONFIGURACIÓN DE PÁGINA (Debe ser estrictamente la PRIMERA instrucción de Streamlit)
 st.set_page_config(
     page_title="Dashboard de Analítica de Talento Humano",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
-# 2. BARRA LATERAL (SIDEBAR)
-st.sidebar.image("Logo_Compe.png")
-st.sidebar.title("Filtros Globales")
 
-# 3. FUNCIÓN PARA CARGAR LOS DATOS
+# 2. BARRA LATERAL (SIDEBAR)
+try:
+    st.sidebar.image("Logo_Compe.png")
+except:
+    pass  # Si no encuentra el logo localmente, continúa sin romper la app
+
+st.sidebar.title("Filtros Globales")
+st.sidebar.markdown("---")
+
+# 3. FUNCIÓN PARA CARGAR LOS DATOS CON CODIFICACIÓN CORRECTA
 @st.cache_data
 def cargar_datos():
-    # Cargamos el archivo específico
-    df = pd.read_csv("Base_proyecto_final.csv")
+    # Usamos encoding='latin-1' para procesar eñes, tildes y caracteres especiales de Excel
+    df = pd.read_csv("Base_proyecto_final.csv", encoding="latin-1")
     
     # Limpieza fundamental: quitar espacios en blanco de los nombres de columnas
     df.columns = [col.strip() for col in df.columns]
@@ -32,12 +38,12 @@ def cargar_datos():
         df['Desc Puesto'] = df['Desc Puesto'].astype(str).str.strip()
     
     if 'Sueldo Actual' in df.columns:
-        # Convertimos a numérico por si hay símbolos de moneda o espacios
+        # Convertimos a numérico por si hay símbolos de moneda o espacios en blanco
         df['Sueldo Actual'] = pd.to_numeric(df['Sueldo Actual'], errors='coerce')
         
     return df
 
-# Ejecución de la carga
+# Ejecución segura de la carga de datos
 try:
     df = cargar_datos()
       
@@ -56,25 +62,27 @@ try:
     if puestos_seleccionados:
         df_filtrado = df[df['Desc Puesto'].isin(puestos_seleccionados)]
         
-        # Métricas
+        # Métricas principales
         promedio = df_filtrado['Sueldo Actual'].mean()
         conteo = len(df_filtrado)
         
         col1, col2 = st.columns(2)
-        col1.metric("Sueldo Promedio", f"${promedio:,.2f}")
-        col2.metric("Colaboradores en selección", conteo)
+        with col1:
+            st.metric("Sueldo Promedio", f"${promedio:,.2f}" if not np.isnan(promedio) else "$0.00")
+        with col2:
+            st.metric("Colaboradores en selección", f"{conteo} personas")
         
-        # Mostrar tabla
+        # Mostrar tabla filtrada
         st.write("### Detalle de empleados seleccionados")
-        st.dataframe(df_filtrado)
+        st.dataframe(df_filtrado, use_container_width=True)
     else:
-        st.info("Selecciona uno o más puestos en la barra lateral para comenzar el análisis.")
+        st.info("💡 Selecciona uno o más puestos en la barra lateral izquierda para comenzar el análisis.")
         
-        # Mostrar una vista general del dataset si no hay filtro
+        # Mostrar una vista general del dataset si no hay filtro activo
         st.write("### Vista previa general del Dataset")
-        st.dataframe(df.head(10))
+        st.dataframe(df.head(10), use_container_width=True)
 
 except FileNotFoundError:
-    st.error("No se encontró el archivo 'Base_proyecto_final.csv'. Asegúrate de que el nombre sea exacto y esté en la raíz de tu repositorio.")
+    st.error("❌ No se encontró el archivo 'Base_proyecto_final.csv' en el repositorio de GitHub.")
 except Exception as e:
-    st.error(f"Error al procesar los datos: {e}")
+    st.error(f"❌ Error al procesar los datos: {e}")
