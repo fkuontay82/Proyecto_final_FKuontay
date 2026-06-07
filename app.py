@@ -14,3 +14,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+st.sidebar.title("Edad")
+st.sidebar.image("Logo Python2.png")
+
