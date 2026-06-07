@@ -38,8 +38,13 @@ def cargar_datos():
         df['Desc Puesto'] = df['Desc Puesto'].astype(str).str.strip()
     
     if 'Sueldo Actual' in df.columns:
-        # Convertimos a numérico por si hay símbolos de moneda o espacios en blanco
         df['Sueldo Actual'] = pd.to_numeric(df['Sueldo Actual'], errors='coerce')
+        
+    if 'Anios Antiguedad' in df.columns:
+        df['Anios Antiguedad'] = pd.to_numeric(df['Anios Antiguedad'], errors='coerce')
+        
+    if 'Edad' in df.columns:
+        df['Edad'] = pd.to_numeric(df['Edad'], errors='coerce')
         
     return df
 
@@ -48,7 +53,7 @@ try:
     df = cargar_datos()
       
     # 4. CUERPO PRINCIPAL
-    st.title("PROYECTO FINAL: Analítica de Datos")
+    st.title("🚀 PROYECTO FINAL: Analítica de Datos")
     st.markdown("---")
     
     # Lógica de la Barra Lateral para filtrar puestos
@@ -58,29 +63,79 @@ try:
         options=lista_puestos
     )
 
-    # 5. ANÁLISIS DINÁMICO
+    # Definir qué dataframe usar según el filtro
     if puestos_seleccionados:
-        df_filtrado = df[df['Desc Puesto'].isin(puestos_seleccionados)]
-        
-        # Métricas principales
-        promedio = df_filtrado['Sueldo Actual'].mean()
-        conteo = len(df_filtrado)
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Sueldo Promedio", f"${promedio:,.2f}" if not np.isnan(promedio) else "$0.00")
-        with col2:
-            st.metric("Colaboradores en selección", f"{conteo} personas")
-        
-        # Mostrar tabla filtrada
-        st.write("### Detalle de empleados seleccionados")
-        st.dataframe(df_filtrado, use_container_width=True)
+        df_analisis = df[df['Desc Puesto'].isin(puestos_seleccionados)]
+        st.subheader("Resultados para los puestos seleccionados:")
     else:
-        st.info("💡 Selecciona uno o más puestos en la barra lateral izquierda para comenzar el análisis.")
+        df_analisis = df
+        st.info("💡 Mostrando datos generales de la empresa. Selecciona puestos en la barra lateral para segmentar.")
+        st.subheader("Resultados Generales de la Empresa:")
+
+    # 5. DESPLIEGUE DE MÉTRICAS (4 Columnas)
+    col1, col2, col3, col4 = st.columns(4)
+    
+    # Métrica 1: Sueldo Promedio
+    promedio_sueldo = df_analisis['Sueldo Actual'].mean()
+    col1.metric("Sueldo Promedio", f"${promedio_sueldo:,.2f}" if not np.isnan(promedio_sueldo) else "$0.00")
+    
+    # Métrica 2: Conteo de Personal
+    conteo = len(df_analisis)
+    col2.metric("Total Colaboradores", f"{conteo} pers.")
+    
+    # Métrica 3: Máxima Antigüedad
+    max_antiguedad = df_analisis['Anios Antiguedad'].max()
+    col3.metric("Max. Antigüedad", f"{max_antiguedad:.0f} Años" if not np.isnan(max_antiguedad) else "0 Años")
+    
+    # Métrica 4: Edad Promedio
+    promedio_edad = df_analisis['Edad'].mean()
+    col4.metric("Edad Promedio", f"{promedio_edad:.1f} Años" if not np.isnan(promedio_edad) else "0 Años")
+    
+    st.markdown("---")
+
+    # 6. SECCIÓN DE GRÁFICOS: ANÁLISIS DE BAJAS
+    st.write("### 📉 Análisis de Rotación y Motivos de Baja")
+    
+    # Filtramos el dataset para quedarnos solo con los registros que son 'BAJA'
+    df_bajas = df_analisis[df_analisis['Estatus'].str.upper().str.strip() == 'BAJA']
+    
+    if not df_bajas.empty and 'Motivo Baja' in df_bajas.columns:
+        # Agrupamos por motivo y contamos cuántos casos hay
+        conteo_motivos = df_bajas['Motivo Baja'].value_counts().reset_index()
+        conteo_motivos.columns = ['Motivo de Baja', 'Cantidad']
         
-        # Mostrar una vista general del dataset si no hay filtro activo
-        st.write("### Vista previa general del Dataset")
-        st.dataframe(df.head(10), use_container_width=True)
+        # Ordenamos para que las barras más largas queden arriba en el gráfico horizontal
+        conteo_motivos = conteo_motivos.sort_values(by='Cantidad', ascending=True)
+        
+        # Crear gráfico de barras horizontales con Plotly Express
+        fig_bajas = px.bar(
+            conteo_motivos,
+            x='Cantidad',
+            y='Motivo de Baja',
+            orientation='h',
+            title="Cantidad de Bajas según el Motivo",
+            labels={'Cantidad': 'Número de Colaboradores', 'Motivo de Baja': 'Motivo'},
+            color='Cantidad',
+            color_continuous_scale='Reds' # Escala de colores cálidos para denotar salidas/bajas
+        )
+        
+        # Ajustes visuales del gráfico
+        fig_bajas.update_layout(
+            yaxis={'categoryorder': 'total ascending'},
+            showlegend=False,
+            height=400
+        )
+        
+        # Renderizar gráfico en Streamlit
+        st.plotly_chart(fig_bajas, use_container_width=True)
+    else:
+        st.warning("⚠️ No se registran colaboradores con estatus de 'BAJA' para la selección actual.")
+
+    st.markdown("---")
+    
+    # 7. VISUALIZACIÓN DE LA TABLA
+    st.write("### Detalle de los registros analizados")
+    st.dataframe(df_analisis, use_container_width=True)
 
 except FileNotFoundError:
     st.error("❌ No se encontró el archivo 'Base_proyecto_final.csv' en el repositorio de GitHub.")
