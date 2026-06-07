@@ -93,8 +93,8 @@ try:
     
     st.markdown("---")
 
-    # 6. SECCIÓN DE GRÁFICOS: ANÁLISIS DE BAJAS
-    st.write("### 📉 Análisis de Rotación y Motivos de Baja")
+    # 6. SECCIÓN DE GRÁFICOS: ANÁLISIS DE BAJAS (GRÁFICO DE PASTEL)
+    st.write("### 📉 Distribución Porcentual por Motivos de Baja")
     
     # Filtramos el dataset para quedarnos solo con los registros que son 'BAJA'
     df_bajas = df_analisis[df_analisis['Estatus'].str.upper().str.strip() == 'BAJA']
@@ -104,30 +104,29 @@ try:
         conteo_motivos = df_bajas['Motivo Baja'].value_counts().reset_index()
         conteo_motivos.columns = ['Motivo de Baja', 'Cantidad']
         
-        # Ordenamos para que las barras más largas queden arriba en el gráfico horizontal
-        conteo_motivos = conteo_motivos.sort_values(by='Cantidad', ascending=True)
-        
-        # Crear gráfico de barras horizontales con Plotly Express
-        fig_bajas = px.bar(
+        # Crear gráfico de pastel interactivo con Plotly Express
+        fig_pastel = px.pie(
             conteo_motivos,
-            x='Cantidad',
-            y='Motivo de Baja',
-            orientation='h',
-            title="Cantidad de Bajas según el Motivo",
-            labels={'Cantidad': 'Número de Colaboradores', 'Motivo de Baja': 'Motivo'},
-            color='Cantidad',
-            color_continuous_scale='Reds' # Escala de colores cálidos para denotar salidas/bajas
+            values='Cantidad',
+            names='Motivo de Baja',
+            title="Proporción de Bajas según el Motivo",
+            hole=0.4,  # Convierte el gráfico de pastel en uno de dona, que es más moderno y legible
+            color_discrete_sequence=px.colors.sequential.Reds_r # Colores elegantes basados en tonos rojos/cálidos
         )
         
-        # Ajustes visuales del gráfico
-        fig_bajas.update_layout(
-            yaxis={'categoryorder': 'total ascending'},
-            showlegend=False,
-            height=400
+        # Ajustes visuales para mostrar texto y porcentajes dentro del gráfico
+        fig_pastel.update_traces(
+            textposition='inside', 
+            textinfo='percent+label'
+        )
+        
+        fig_pastel.update_layout(
+            height=450,
+            margin=dict(t=50, b=20, l=20, r=20)
         )
         
         # Renderizar gráfico en Streamlit
-        st.plotly_chart(fig_bajas, use_container_width=True)
+        st.plotly_chart(fig_pastel, use_container_width=True)
     else:
         st.warning("⚠️ No se registran colaboradores con estatus de 'BAJA' para la selección actual.")
 
