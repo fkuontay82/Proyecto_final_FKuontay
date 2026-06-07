@@ -42,7 +42,7 @@ try:
     df = cargar_datos()
 
 @st.cache_data
-def cargar_datos_locales(nombre_archivo):
+def cargar_datos_locales(Base_proyecto_final):
     try:
         # Añadimos el parámetro encoding='latin1' para soportar eñes y tildes
         df = pd.read_csv(nombre_archivo, encoding='latin1')
@@ -58,9 +58,7 @@ def cargar_datos_locales(nombre_archivo):
             return df
         except:
             return None
-
-
-    
+   
     # 4. CUERPO PRINCIPAL
     st.title("🚀 PROYECTO FINAL: Analítica de Datos")
     st.markdown("---")
